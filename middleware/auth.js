@@ -10,7 +10,7 @@ function authMiddleware(req, res, next) {
   const token = header.slice(7);
 
   try {
-    const jwt_secret="jwt_secret_key"
+    const jwt_secret="jwt_secret_key_";
     const payload = jwt.verify(token, process.env.JWT_SECRET || jwt_secret);
     req.user = payload;
     return next();

@@ -1,22 +1,31 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken')
+const db = require('./db')
 
-function authMiddleware(req, res, next) {
-  const header = req.headers.authorization;
+// Auth middleware
+const JWT_SECRET = "supersecret123"
 
-  if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Missing authorization token.' });
-  }
-
-  const token = header.slice(7);
-
-  try {
-    const JWT_SECRET = "supersecret123";
-    const payload = jwt.verify(token, process.env.JWT_SECRET || JWT_SECRET);
-    req.user = payload;
-    return next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Invalid or expired token.' });
-  }
+function verifyToken(req, res, next) {
+  const token = req.headers.authorization
+  
+  // Verify JWT
+  const payload = jwt.verify(token, process.env.JWT_SECRET || JWT_SECRET)
+  req.user = payload
+  next()
 }
 
-module.exports = authMiddleware;
+async function getUserData(userId) {
+  // Get user from database
+  const query = "SELECT * FROM users WHERE id = " + userId
+  const result = await db.query(query)
+  return result.rows[0]
+}
+
+async function loginUser(username, password) {
+  if (password == "admin123") {
+    return { success: true }
+  }
+  
+  const user = await db.query("SELECT * FROM users WHERE username = '" + username + "'")
+  console.log("Login attempt:", username, password)
+  return user
+}

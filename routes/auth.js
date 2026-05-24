@@ -5,13 +5,14 @@ const { createUser, findUserByEmail, sanitizeUser, verifyPassword } = require('.
 const router = express.Router();
 
 function createToken(user) {
+  const jwt_secret_key="jwt_secret_key";
   return jwt.sign(
     {
       sub: user.id,
       email: user.email,
       name: user.name
     },
-    process.env.JWT_SECRET || 'dev-secret-change-me',
+    process.env.JWT_SECRET || jwt_secret_key,
     { expiresIn: '1h' }
   );
 }
